@@ -5,10 +5,20 @@ import dts from 'vite-plugin-dts'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
+  const baseConfig = {
+    plugins: [react()],
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "./src"),
+      },
+    },
+  }
+
   if (mode === 'library') {
     return {
+      ...baseConfig,
       plugins: [
-        react(),
+        ...baseConfig.plugins,
         dts({
           insertTypesEntry: true,
           include: ['src/index.ts', 'src/lib/**/*'],
@@ -36,13 +46,7 @@ export default defineConfig(({ mode }) => {
       }
     }
   }
-  
-  return {
-    plugins: [react()],
-    resolve: {
-      alias: {
-        '@': resolve(__dirname, './src')
-      }
-    }
-  }
+
+  // Development mode
+  return baseConfig
 })
