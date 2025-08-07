@@ -6,14 +6,37 @@ export function useDataTable<TData>({
   pageSize, 
   tableId 
 }: UseDataTableOptions): UseDataTableReturn<TData> {
+  // Generate localStorage keys based on tableId to avoid conflicts
+  const getStorageKey = (key: string) => `mdata-table-${tableId}-${key}`;
+  
+  // Load saved state from localStorage
+  const loadFromStorage = (key: string, defaultValue: any) => {
+    try {
+      const saved = localStorage.getItem(getStorageKey(key));
+      return saved ? JSON.parse(saved) : defaultValue;
+    } catch (error) {
+      console.warn(`Failed to load ${key} from localStorage:`, error);
+      return defaultValue;
+    }
+  };
+
+  // Save state to localStorage
+  const saveToStorage = (key: string, value: any) => {
+    try {
+      localStorage.setItem(getStorageKey(key), JSON.stringify(value));
+    } catch (error) {
+      console.warn(`Failed to save ${key} to localStorage:`, error);
+    }
+  };
+
   const [data, setData] = React.useState<TData[]>([]);
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState(loadFromStorage('searchQuery', ''));
   const [isLoading, setIsLoading] = React.useState(false);
   const [isFetchingNextPage, setIsFetchingNextPage] = React.useState(false);
-  const [sorting, setSorting] = React.useState<SortingState | null>(null);
+  const [sorting, setSorting] = React.useState<SortingState | null>(loadFromStorage('sorting', null));
   const [hasMore, setHasMore] = React.useState(true);
-  const [filters, setFilters] = React.useState<FilterState>({});
-  const [showAdditionalFilters, setShowAdditionalFilters] = React.useState(false);
+  const [filters, setFilters] = React.useState<FilterState>(loadFromStorage('filters', {}));
+  const [showAdditionalFilters, setShowAdditionalFilters] = React.useState(loadFromStorage('showAdditionalFilters', false));
   const [totalRecords, setTotalRecords] = React.useState(0);
   const [isExporting, setIsExporting] = React.useState(false);
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
@@ -132,6 +155,26 @@ export function useDataTable<TData>({
     fetchData(1, true);
   }, [searchQuery, filters, sorting]);
 
+  // Save search query to localStorage when it changes
+  React.useEffect(() => {
+    saveToStorage('searchQuery', searchQuery);
+  }, [searchQuery]);
+
+  // Save filters to localStorage when they change
+  React.useEffect(() => {
+    saveToStorage('filters', filters);
+  }, [filters]);
+
+  // Save sorting to localStorage when it changes
+  React.useEffect(() => {
+    saveToStorage('sorting', sorting);
+  }, [sorting]);
+
+  // Save showAdditionalFilters to localStorage when it changes
+  React.useEffect(() => {
+    saveToStorage('showAdditionalFilters', showAdditionalFilters);
+  }, [showAdditionalFilters]);
+
   const handleFilterChange = React.useCallback((key: string, value: string | number | boolean) => {
     setFilters(prev => ({
       ...prev,
@@ -139,11 +182,19 @@ export function useDataTable<TData>({
     }));
   }, []);
 
+  const handleSetShowAdditionalFilters = React.useCallback((show: boolean) => {
+    setShowAdditionalFilters(show);
+  }, []);
+
   const resetAllFilters = React.useCallback(() => {
     setSearchQuery('');
     setFilters({});
     setSorting(null);
     setRowSelection({});
+    // Clear localStorage when resetting
+    saveToStorage('searchQuery', '');
+    saveToStorage('filters', {});
+    saveToStorage('sorting', null);
   }, []);
 
   const exportData = React.useCallback(async (): Promise<TData[]> => {
@@ -214,7 +265,7 @@ export function useDataTable<TData>({
     filters,
     handleFilterChange,
     showAdditionalFilters,
-    setShowAdditionalFilters,
+    setShowAdditionalFilters: handleSetShowAdditionalFilters,
     loadMoreRef,
     totalRecords,
     resetAllFilters,
