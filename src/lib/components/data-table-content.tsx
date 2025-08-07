@@ -40,14 +40,85 @@ export function DataTableContent<TData, TValue>({
   dataLength,
   searchQuery,
   renderSubComponent,
+  columnOrder,
+  setColumnOrder,
 }: DataTableContentProps<TData, TValue>) {
   const [expandedRows, setExpandedRows] = React.useState<Record<string, boolean>>({})
+  const [draggedColumn, setDraggedColumn] = React.useState<string | null>(null)
 
   const toggleRowExpansion = (rowId: string) => {
     setExpandedRows(prev => ({
       ...prev,
       [rowId]: !prev[rowId]
     }))
+  }
+
+  const handleDragStart = (e: React.DragEvent, columnId: string) => {
+    // Don't allow dragging the select column
+    if (columnId === 'select') {
+      e.preventDefault()
+      return
+    }
+    
+    setDraggedColumn(columnId)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', columnId)
+    
+    // Add some visual feedback
+    const target = e.target as HTMLElement
+    target.style.opacity = '0.5'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    const target = e.currentTarget as HTMLElement
+    target.style.background = 'rgba(59, 130, 246, 0.1)' // Light blue highlight
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    const target = e.currentTarget as HTMLElement
+    target.style.background = ''
+  }
+
+  const handleDrop = (e: React.DragEvent, targetColumnId: string) => {
+    e.preventDefault()
+    
+    // Clear visual feedback
+    const target = e.currentTarget as HTMLElement
+    target.style.background = ''
+    
+    if (!draggedColumn || draggedColumn === targetColumnId || targetColumnId === 'select') {
+      setDraggedColumn(null)
+      return
+    }
+
+    const currentOrder = [...columnOrder]
+    const draggedIndex = currentOrder.indexOf(draggedColumn)
+    const targetIndex = currentOrder.indexOf(targetColumnId)
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedColumn(null)
+      return
+    }
+
+    // Remove dragged column and insert at target position
+    currentOrder.splice(draggedIndex, 1)
+    currentOrder.splice(targetIndex, 0, draggedColumn)
+
+    setColumnOrder(currentOrder)
+    setDraggedColumn(null)
+  }
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    // Reset visual feedback
+    const target = e.target as HTMLElement
+    target.style.opacity = ''
+    setDraggedColumn(null)
   }
 
   if (isLoading) {
@@ -91,7 +162,21 @@ export function DataTableContent<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="relative">
+                  <TableHead 
+                    key={header.id} 
+                    className={`relative ${
+                      draggedColumn === header.id ? 'opacity-50' : ''
+                    } ${
+                      header.column.getCanSort() || header.id !== 'select' ? 'cursor-move' : ''
+                    }`}
+                    draggable={header.id !== 'select'}
+                    onDragStart={(e) => handleDragStart(e, header.id)}
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, header.id)}
+                    onDragEnd={handleDragEnd}
+                  >
                     {header.isPlaceholder ? null : (
                       <div
                         className={`flex items-center space-x-2 ${
