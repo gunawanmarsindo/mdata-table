@@ -5,7 +5,7 @@ import {
   type ColumnDef,
   type Row,
 } from "@tanstack/react-table"
-import { ChevronDown, ChevronUp, Loader2, Search } from "lucide-react"
+import { ChevronDown, ChevronUp, Search } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -15,6 +15,8 @@ import {
   TableRow,
 } from "./ui/table"
 import { Checkbox } from "./ui/checkbox"
+import { Skeleton } from "./ui/skeleton"
+import { DataTableSkeleton } from "./data-table-skeleton"
 
 interface DataTableContentProps<TData, TValue> {
   table: TanStackTable<TData>
@@ -122,22 +124,9 @@ export function DataTableContent<TData, TValue>({
   }
 
   if (isLoading) {
-    return (
-      <div className="rounded-lg border border-border/50 bg-card/30 backdrop-blur-sm shadow-sm">
-        <div className="flex items-center justify-center h-64">
-          <div className="flex flex-col items-center space-y-3">
-            <div className="relative">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <div className="absolute inset-0 h-8 w-8 rounded-full border-2 border-primary/20"></div>
-            </div>
-            <div className="text-center space-y-1">
-              <p className="text-sm font-medium text-foreground">Memuat data...</p>
-              <p className="text-xs text-muted-foreground">Mohon tunggu sebentar</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    // Use skeleton loading with dynamic column count
+    const columnCount = table.getAllColumns().filter(col => col.getIsVisible()).length
+    return <DataTableSkeleton rows={5} columns={columnCount} showToolbar={false} />
   }
 
   const rows = table.getRowModel().rows
@@ -289,11 +278,8 @@ export function DataTableContent<TData, TValue>({
       <div className="flex items-center justify-center py-6">
         {isFetchingNextPage ? (
           <div className="flex items-center space-x-3 px-4 py-2 bg-muted/30 rounded-lg border border-border/50">
-            <div className="relative">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <div className="absolute inset-0 h-5 w-5 rounded-full border border-primary/20"></div>
-            </div>
-            <span className="text-sm font-medium text-foreground">Memuat lebih banyak...</span>
+            <Skeleton className="h-5 w-5 rounded-full" />
+            <Skeleton className="h-4 w-32" />
           </div>
         ) : hasMore ? (
           <div 

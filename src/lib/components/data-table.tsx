@@ -13,6 +13,7 @@ import {
 import { useDataTable } from "../hooks/useDataTable"
 import { DataTableToolbar } from "./data-table-toolbar"
 import { DataTableContent } from "./data-table-content"
+import { DataTableSkeleton } from "./data-table-skeleton"
 import type { AdditionalFilter } from '../types'
 import { exportToCsv } from "../utils/index"
 

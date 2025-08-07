@@ -2,12 +2,14 @@
 export { DataTable } from './lib/components/data-table'
 export { DataTableToolbar } from './lib/components/data-table-toolbar'
 export { DataTableContent } from './lib/components/data-table-content'
+export { DataTableSkeleton, TableRowSkeleton, SearchSkeleton, FilterBadgeSkeleton, ButtonGroupSkeleton } from './lib/components/data-table-skeleton'
 
 // UI components
 export { Button } from './lib/components/ui/button'
 export { Input } from './lib/components/ui/input'
 export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './lib/components/ui/table'
 export { Checkbox } from './lib/components/ui/checkbox'
+export { Skeleton } from './lib/components/ui/skeleton'
 export { 
   DropdownMenu, 
   DropdownMenuTrigger, 
