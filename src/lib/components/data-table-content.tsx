@@ -142,7 +142,7 @@ export function DataTableContent<TData, TValue>({
                       {cell.column.id === 'select' ? (
                         <Checkbox
                           checked={row.getIsSelected()}
-                          onChange={(e) => row.toggleSelected(e.target.checked)}
+                          onCheckedChange={(checked) => row.toggleSelected(!!checked)}
                           aria-label="Select row"
                         />
                       ) : (

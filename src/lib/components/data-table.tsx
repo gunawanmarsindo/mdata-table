@@ -14,7 +14,7 @@ import { useDataTable } from "../hooks/useDataTable"
 import { DataTableToolbar } from "./data-table-toolbar"
 import { DataTableContent } from "./data-table-content"
 import type { AdditionalFilter } from '../types'
-import { exportToCsv } from '../utils'
+import { exportToCsv } from "../utils/index"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

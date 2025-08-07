@@ -8,6 +8,12 @@ export { Button } from './lib/components/ui/button'
 export { Input } from './lib/components/ui/input'
 export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './lib/components/ui/table'
 export { Checkbox } from './lib/components/ui/checkbox'
+export { 
+  DropdownMenu, 
+  DropdownMenuTrigger, 
+  DropdownMenuContent, 
+  DropdownMenuCheckboxItem 
+} from './lib/components/ui/dropdown-menu'
 
 // Hooks
 export { useDataTable } from './lib/hooks/useDataTable'
@@ -22,4 +28,4 @@ export type {
 } from './lib/types'
 
 // Utils
-export { cn, exportToCsv } from './lib/utils'
+export { cn, exportToCsv } from './lib/utils/index'

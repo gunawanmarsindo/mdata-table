@@ -1,8 +1,13 @@
-import { useState, useEffect, useRef } from "react"
 import type { Table } from "@tanstack/react-table"
-import { Search, Filter, RotateCcw, Download, Trash2, Settings2, ChevronDown } from "lucide-react"
+import { Search, Filter, RotateCcw, Download, Trash2, Settings2 } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 import type { AdditionalFilter, FilterState } from "../types"
 
 interface DataTableToolbarProps<TData> {
@@ -41,25 +46,6 @@ export function DataTableToolbar<TData>({
   onBulkExportSelected,
 }: DataTableToolbarProps<TData>) {
   const selectedRowCount = table.getFilteredSelectedRowModel().rows.length
-  const [showColumnDropdown, setShowColumnDropdown] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  // Handle click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowColumnDropdown(false)
-      }
-    }
-
-    if (showColumnDropdown) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showColumnDropdown])
 
   return (
     <div className="space-y-4">
@@ -130,43 +116,30 @@ export function DataTableToolbar<TData>({
             </>
           )}
 
-          {/* Column Visibility - Simple Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowColumnDropdown(!showColumnDropdown)}
-            >
-              <Settings2 className="mr-2 h-4 w-4" />
-              Tampilan Kolom
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-            {showColumnDropdown && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                <div className="p-2">
-                  {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => (
-                      <label
-                        key={column.id}
-                        className="flex items-center space-x-2 p-2 hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={column.getIsVisible()}
-                          onChange={(e) => column.toggleVisibility(e.target.checked)}
-                          className="rounded border-gray-300"
-                        />
-                        <span className="text-sm capitalize">
-                          {(column.columnDef.header as string) || column.id}
-                        </span>
-                      </label>
-                    ))}
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Column Visibility - Shadcn Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Settings2 className="mr-2 h-4 w-4" />
+                Tampilan Kolom
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                  >
+                    {(column.columnDef.header as string) || column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Export */}
           {enableExport && onExport && (
