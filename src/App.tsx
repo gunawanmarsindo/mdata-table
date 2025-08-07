@@ -1,5 +1,6 @@
 import './index.css'
 import { DataTable } from './lib/components/data-table'
+import { Checkbox } from './lib/components/ui/checkbox'
 import type { ColumnDef } from '@tanstack/react-table'
 
 // Sample data type - matching JSONPlaceholder API
@@ -17,21 +18,17 @@ const columns: ColumnDef<User>[] = [
   {
     id: 'select',
     header: ({ table }) => (
-      <input
-        type="checkbox"
+      <Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        onChange={(e) => table.toggleAllPageRowsSelected(e.target.checked)}
+        onCheckedChange={(checked) => table.toggleAllPageRowsSelected(!!checked)}
         aria-label="Select all"
-        className="rounded border-border/60 focus:ring-2 focus:ring-primary/20"
       />
     ),
     cell: ({ row }) => (
-      <input
-        type="checkbox"
+      <Checkbox
         checked={row.getIsSelected()}
-        onChange={(e) => row.toggleSelected(e.target.checked)}
+        onCheckedChange={(checked) => row.toggleSelected(!!checked)}
         aria-label="Select row"
-        className="rounded border-border/60 focus:ring-2 focus:ring-primary/20"
       />
     ),
   },

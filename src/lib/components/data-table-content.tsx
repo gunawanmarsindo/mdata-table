@@ -5,7 +5,7 @@ import {
   type ColumnDef,
   type Row,
 } from "@tanstack/react-table"
-import { ChevronDown, ChevronUp, Search } from "lucide-react"
+import { ChevronDown, ChevronUp, Search, RotateCcw } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "./ui/table"
 import { Checkbox } from "./ui/checkbox"
+import { Button } from "./ui/button"
 import { Skeleton } from "./ui/skeleton"
 import { DataTableSkeleton } from "./data-table-skeleton"
 
@@ -133,21 +134,33 @@ export function DataTableContent<TData, TValue>({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-border/50 bg-card/30 backdrop-blur-sm shadow-sm">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center space-y-3">
-            <div className="mx-auto w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center">
-              <Search className="h-6 w-6 text-muted-foreground" />
+      <div className="rounded-md border">
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="flex flex-col items-center space-y-4 text-center max-w-md">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+              <Search className="h-8 w-8 text-muted-foreground" />
             </div>
-            <div className="space-y-1">
-              <p className="text-lg font-semibold text-foreground">Tidak ada data</p>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-foreground">
+                {searchQuery ? 'Tidak ada hasil' : 'Belum ada data'}
+              </h3>
               <p className="text-sm text-muted-foreground">
                 {searchQuery 
-                  ? `Tidak ditemukan hasil untuk "${searchQuery}"`
-                  : "Belum ada data yang tersedia"
+                  ? `Tidak ditemukan hasil untuk "${searchQuery}". Coba ubah kata kunci pencarian atau reset filter.`
+                  : "Belum ada data yang tersedia. Data akan muncul di sini setelah ditambahkan."
                 }
               </p>
             </div>
+            {searchQuery && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {/* This should be connected to reset function */}}
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Reset Pencarian
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -156,18 +169,18 @@ export function DataTableContent<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border/50 bg-card/30 backdrop-blur-sm shadow-sm overflow-hidden">
+      <div className="rounded-md border">
         <Table>
-          <TableHeader className="bg-muted/30">
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-border/50 hover:bg-muted/20">
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead 
                     key={header.id} 
                     className={`relative transition-all duration-200 ${
                       draggedColumn === header.id ? 'opacity-50' : ''
                     } ${
-                      header.column.getCanSort() || header.id !== 'select' ? 'cursor-move hover:bg-muted/40' : ''
+                      header.column.getCanSort() || header.id !== 'select' ? 'cursor-move' : ''
                     }`}
                     draggable={header.id !== 'select'}
                     onDragStart={(e) => handleDragStart(e, header.id)}
@@ -219,27 +232,20 @@ export function DataTableContent<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {rows.map((row, index) => (
+            {rows.map((row) => (
               <React.Fragment key={row.id}>
                 <TableRow 
                   data-state={row.getIsSelected() ? "selected" : undefined}
-                  className={`transition-colors duration-150 hover:bg-muted/30 ${
-                    row.getIsSelected() ? 'bg-primary/5 border-primary/20' : ''
-                  } ${
-                    index % 2 === 0 ? 'bg-background/50' : 'bg-muted/20'
-                  }`}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell 
                       key={cell.id}
-                      className="py-3 px-4 transition-all duration-150"
                     >
                       {cell.column.id === 'select' ? (
                         <Checkbox
                           checked={row.getIsSelected()}
                           onCheckedChange={(checked) => row.toggleSelected(!!checked)}
                           aria-label="Select row"
-                          className="rounded border-border/60"
                         />
                       ) : (
                         flexRender(cell.column.columnDef.cell, cell.getContext())
@@ -277,19 +283,19 @@ export function DataTableContent<TData, TValue>({
       {/* Enhanced Load More / Loading Indicator */}
       <div className="flex items-center justify-center py-6">
         {isFetchingNextPage ? (
-          <div className="flex items-center space-x-3 px-4 py-2 bg-muted/30 rounded-lg border border-border/50">
+          <div className="flex items-center space-x-3 px-4 py-2">
             <Skeleton className="h-5 w-5 rounded-full" />
             <Skeleton className="h-4 w-32" />
           </div>
         ) : hasMore ? (
           <div 
             ref={loadMoreRef} 
-            className="text-sm text-muted-foreground bg-muted/20 px-4 py-2 rounded-lg border border-dashed border-border/50"
+            className="text-sm text-muted-foreground px-4 py-2 rounded-md border border-dashed"
           >
             Scroll untuk memuat lebih banyak data
           </div>
         ) : dataLength > 0 ? (
-          <div className="text-sm text-muted-foreground bg-muted/20 px-4 py-2 rounded-lg">
+          <div className="text-sm text-muted-foreground px-4 py-2">
             Menampilkan {dataLength} dari {dataLength} data
           </div>
         ) : null}

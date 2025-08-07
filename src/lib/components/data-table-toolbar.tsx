@@ -1,5 +1,5 @@
 import type { Table } from "@tanstack/react-table"
-import { Search, Filter, RotateCcw, Download, Trash2, Settings2 } from "lucide-react"
+import { Filter, RotateCcw, Download, Trash2, Settings2 } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import {
@@ -54,15 +54,12 @@ export function DataTableToolbar<TData>({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Enhanced Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
-              <Input
-                placeholder="Cari data..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-72 h-10 bg-background/60 border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-              />
-            </div>
+            <Input
+              placeholder="Cari data..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-72"
+            />
 
             {/* Filter Toggle with badge */}
             {additionalFilters.length > 0 && (
@@ -70,7 +67,6 @@ export function DataTableToolbar<TData>({
                 variant={showAdditionalFilters ? "default" : "outline"}
                 size="sm"
                 onClick={() => setShowAdditionalFilters(!showAdditionalFilters)}
-                className="gap-2 h-10 px-4"
               >
                 <Filter className="h-4 w-4" />
                 Filter
@@ -91,7 +87,6 @@ export function DataTableToolbar<TData>({
               variant="ghost"
               size="sm"
               onClick={onResetFilters}
-              className="gap-2 h-10 px-4 hover:bg-muted/80"
             >
               <RotateCcw className="h-4 w-4" />
               Reset
@@ -142,7 +137,6 @@ export function DataTableToolbar<TData>({
                 disabled={isExporting}
                 variant="outline"
                 size="sm"
-                className="gap-2 h-10 px-4 bg-background/60 hover:bg-background/80 border-border/60"
               >
                 <Download className={`h-4 w-4 ${isExporting ? 'animate-bounce' : ''}`} />
                 {isExporting ? 'Mengekspor...' : 'Ekspor CSV'}
@@ -155,13 +149,12 @@ export function DataTableToolbar<TData>({
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="gap-2 h-10 px-4 bg-background/60 hover:bg-background/80 border-border/60"
                 >
                   <Settings2 className="h-4 w-4" />
                   Kolom
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end">
                 {table
                   .getAllColumns()
                   .filter((column) => column.getCanHide())
@@ -192,7 +185,7 @@ export function DataTableToolbar<TData>({
                   <select
                     value={String(currentFilters[filter.key] || '')}
                     onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                    className="w-full h-10 px-3 py-2 text-sm border border-border/60 rounded-md bg-background/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                    className="w-full h-10 px-3 py-2 text-sm border border-input rounded-md bg-background"
                   >
                     <option value="">Semua</option>
                     {filter.options.map((option) => (
@@ -207,7 +200,6 @@ export function DataTableToolbar<TData>({
                     placeholder={filter.placeholder}
                     value={String(currentFilters[filter.key] || '')}
                     onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                    className="h-10 bg-background/60 border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                   />
                 )}
               </div>
