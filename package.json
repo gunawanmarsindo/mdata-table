@@ -1,6 +1,6 @@
 {
   "name": "@ggwan/mdata-table",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A reusable React DataTable component built with TanStack Table",
   "type": "module",
   "main": "dist/index.cjs",
