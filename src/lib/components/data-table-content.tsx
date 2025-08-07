@@ -5,7 +5,7 @@ import {
   type ColumnDef,
   type Row,
 } from "@tanstack/react-table"
-import { ChevronDown, ChevronUp, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Loader2, Search } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -123,11 +123,17 @@ export function DataTableContent<TData, TValue>({
 
   if (isLoading) {
     return (
-      <div className="rounded-md border">
+      <div className="rounded-lg border border-border/50 bg-card/30 backdrop-blur-sm shadow-sm">
         <div className="flex items-center justify-center h-64">
-          <div className="flex flex-col items-center space-y-2">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <p className="text-sm text-muted-foreground">Memuat data...</p>
+          <div className="flex flex-col items-center space-y-3">
+            <div className="relative">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <div className="absolute inset-0 h-8 w-8 rounded-full border-2 border-primary/20"></div>
+            </div>
+            <div className="text-center space-y-1">
+              <p className="text-sm font-medium text-foreground">Memuat data...</p>
+              <p className="text-xs text-muted-foreground">Mohon tunggu sebentar</p>
+            </div>
           </div>
         </div>
       </div>
@@ -138,16 +144,21 @@ export function DataTableContent<TData, TValue>({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-md border">
+      <div className="rounded-lg border border-border/50 bg-card/30 backdrop-blur-sm shadow-sm">
         <div className="flex items-center justify-center h-64">
-          <div className="text-center space-y-2">
-            <p className="text-lg font-semibold">Tidak ada data</p>
-            <p className="text-sm text-muted-foreground">
-              {searchQuery 
-                ? `Tidak ditemukan hasil untuk "${searchQuery}"`
-                : "Belum ada data yang tersedia"
-              }
-            </p>
+          <div className="text-center space-y-3">
+            <div className="mx-auto w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center">
+              <Search className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-lg font-semibold text-foreground">Tidak ada data</p>
+              <p className="text-sm text-muted-foreground">
+                {searchQuery 
+                  ? `Tidak ditemukan hasil untuk "${searchQuery}"`
+                  : "Belum ada data yang tersedia"
+                }
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -156,18 +167,18 @@ export function DataTableContent<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <div className="rounded-lg border border-border/50 bg-card/30 backdrop-blur-sm shadow-sm overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/30">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-border/50 hover:bg-muted/20">
                 {headerGroup.headers.map((header) => (
                   <TableHead 
                     key={header.id} 
-                    className={`relative ${
+                    className={`relative transition-all duration-200 ${
                       draggedColumn === header.id ? 'opacity-50' : ''
                     } ${
-                      header.column.getCanSort() || header.id !== 'select' ? 'cursor-move' : ''
+                      header.column.getCanSort() || header.id !== 'select' ? 'cursor-move hover:bg-muted/40' : ''
                     }`}
                     draggable={header.id !== 'select'}
                     onDragStart={(e) => handleDragStart(e, header.id)}
@@ -219,16 +230,27 @@ export function DataTableContent<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <React.Fragment key={row.id}>
-                <TableRow data-state={row.getIsSelected() ? "selected" : undefined}>
+                <TableRow 
+                  data-state={row.getIsSelected() ? "selected" : undefined}
+                  className={`transition-colors duration-150 hover:bg-muted/30 ${
+                    row.getIsSelected() ? 'bg-primary/5 border-primary/20' : ''
+                  } ${
+                    index % 2 === 0 ? 'bg-background/50' : 'bg-muted/20'
+                  }`}
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell 
+                      key={cell.id}
+                      className="py-3 px-4 transition-all duration-150"
+                    >
                       {cell.column.id === 'select' ? (
                         <Checkbox
                           checked={row.getIsSelected()}
                           onCheckedChange={(checked) => row.toggleSelected(!!checked)}
                           aria-label="Select row"
+                          className="rounded border-border/60"
                         />
                       ) : (
                         flexRender(cell.column.columnDef.cell, cell.getContext())
@@ -263,21 +285,27 @@ export function DataTableContent<TData, TValue>({
         </Table>
       </div>
 
-      {/* Load More / Loading Indicator */}
-      <div className="flex items-center justify-center py-4">
+      {/* Enhanced Load More / Loading Indicator */}
+      <div className="flex items-center justify-center py-6">
         {isFetchingNextPage ? (
-          <div className="flex items-center space-x-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm text-muted-foreground">Memuat lebih banyak...</span>
+          <div className="flex items-center space-x-3 px-4 py-2 bg-muted/30 rounded-lg border border-border/50">
+            <div className="relative">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <div className="absolute inset-0 h-5 w-5 rounded-full border border-primary/20"></div>
+            </div>
+            <span className="text-sm font-medium text-foreground">Memuat lebih banyak...</span>
           </div>
         ) : hasMore ? (
-          <div ref={loadMoreRef} className="text-sm text-muted-foreground">
+          <div 
+            ref={loadMoreRef} 
+            className="text-sm text-muted-foreground bg-muted/20 px-4 py-2 rounded-lg border border-dashed border-border/50"
+          >
             Scroll untuk memuat lebih banyak data
           </div>
         ) : dataLength > 0 ? (
-          <span className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground bg-muted/20 px-4 py-2 rounded-lg">
             Menampilkan {dataLength} dari {dataLength} data
-          </span>
+          </div>
         ) : null}
       </div>
     </div>
