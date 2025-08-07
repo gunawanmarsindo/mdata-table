@@ -1,0 +1,30 @@
+# Source files
+src/
+public/
+index.html
+
+# Config files
+vite.config.ts
+tsconfig.*.json
+eslint.config.js
+tailwind.config.js
+postcss.config.js
+
+# Development files
+.gitignore
+.vscode/
+.github/
+node_modules/
+*.log
+.DS_Store
+.env*
+
+# Build artifacts not for distribution
+coverage/
+*.test.*
+*.spec.*
+
+# Documentation (keep README.md and LICENSE)
+PUBLISHING.md
+
+# Only include dist/ folder in the published package

@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": true,
+    "outDir": "./dist",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "src/index.ts",
+    "src/lib/**/*"
+  ],
+  "exclude": [
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/App.css",
+    "**/*.test.*",
+    "**/*.spec.*"
+  ]
+}
